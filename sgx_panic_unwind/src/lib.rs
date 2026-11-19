@@ -34,7 +34,7 @@ extern crate sgx_unwind;
 
 use alloc::boxed::Box;
 use core::any::Any;
-use core::panic::BoxMeUp;
+use core::panic::PanicPayload as BoxMeUp;
 
 #[path = "gcc.rs"]
 mod imp;
@@ -42,9 +42,11 @@ mod imp;
 extern "C" {
     /// Handler in libstd called when a panic object is dropped outside of
     /// `catch_unwind`.
+    #[rustc_std_internal_symbol]
     fn __rust_drop_panic() -> !;
 
     /// Handler in libstd called when a foreign exception is caught.
+    #[rustc_std_internal_symbol]
     fn __rust_foreign_exception() -> !;
 }
 
@@ -59,8 +61,8 @@ pub unsafe extern "C" fn __rust_panic_cleanup(payload: *mut u8) -> *mut (dyn Any
 // Entry point for raising an exception, just delegates to the platform-specific
 // implementation.
 #[rustc_std_internal_symbol]
-pub unsafe fn __rust_start_panic(payload: *mut &mut dyn BoxMeUp) -> u32 {
-    let payload = Box::from_raw((*payload).take_box());
+pub unsafe fn __rust_start_panic(payload: &mut dyn BoxMeUp) -> u32 {
+    let payload = Box::from_raw(payload.take_box());
 
     imp::panic(payload)
 }

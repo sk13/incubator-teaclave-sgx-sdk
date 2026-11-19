@@ -135,9 +135,13 @@ static int (*mem_validate_func) (void *addr, size_t len);
 static int msync_validate (void *addr, size_t len)
 {
 #ifdef HAVE_SGX
+  /* Don't follow pointers out of the enclave, but report them as invalid
+     instead of aborting the enclave: this is reached from the frame-chain
+     fallback of unw_step() for frames without unwind info, where %rbp can
+     hold any value (e.g. while printing a panic backtrace).  */
   extern int sgx_is_within_enclave(const void *addr, size_t size);
   if(!sgx_is_within_enclave(addr, len))
-    abort();
+    return -1;
 #endif
 
   if (msync (addr, len, MS_ASYNC) != 0)

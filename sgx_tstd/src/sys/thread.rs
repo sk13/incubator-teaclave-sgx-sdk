@@ -38,7 +38,7 @@ unsafe impl Sync for Thread {}
 impl Thread {
     // unsafe: see thread::Builder::spawn_unchecked for safety requirements
     pub unsafe fn new(p: Box<dyn FnOnce()>) -> io::Result<Thread> {
-        let p = Box::into_raw(box p);
+        let p = Box::into_raw(Box::new(p));
         let mut native: libc::pthread_t = mem::zeroed();
         let attr: libc::pthread_attr_t = mem::zeroed();
         let ret = libc::pthread_create(&mut native, &attr, thread_start, p as *mut _);

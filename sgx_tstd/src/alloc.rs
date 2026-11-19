@@ -120,18 +120,10 @@ pub fn take_alloc_error_hook() -> fn(Layout) {
 }
 
 fn default_alloc_error_hook(layout: Layout) {
-    extern "Rust" {
-        // This symbol is emitted by rustc next to __rust_alloc_error_handler.
-        // Its value depends on the -Zoom={panic,abort} compiler option.
-        static __rust_alloc_error_handler_should_panic: u8;
-    }
-
-    #[allow(unused_unsafe)]
-    if unsafe { __rust_alloc_error_handler_should_panic != 0 } {
-        panic!("memory allocation of {} bytes failed\n", layout.size());
-    } else {
-        rtprintpanic!("memory allocation of {} bytes failed\n", layout.size());
-    }
+    // Rust 1.95 removed the -Zoom={panic,abort} option (and with it the
+    // __rust_alloc_error_handler_should_panic flag symbol): as in std, the
+    // default hook only prints the error, and rust_oom then aborts.
+    rtprintpanic!("memory allocation of {} bytes failed\n", layout.size());
 }
 
 #[doc(hidden)]

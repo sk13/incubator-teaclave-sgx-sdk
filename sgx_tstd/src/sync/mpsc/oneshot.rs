@@ -50,9 +50,9 @@ use crate::sync::mpsc::Receiver;
 use crate::time::Instant;
 
 // Various states you can find a port in.
-const EMPTY: *mut u8 = ptr::invalid_mut::<u8>(0); // initial state: no data, no blocked receiver
-const DATA: *mut u8 = ptr::invalid_mut::<u8>(1); // data ready for receiver to take
-const DISCONNECTED: *mut u8 = ptr::invalid_mut::<u8>(2); // channel is disconnected OR upgraded
+const EMPTY: *mut u8 = ptr::without_provenance_mut::<u8>(0); // initial state: no data, no blocked receiver
+const DATA: *mut u8 = ptr::without_provenance_mut::<u8>(1); // data ready for receiver to take
+const DISCONNECTED: *mut u8 = ptr::without_provenance_mut::<u8>(2); // channel is disconnected OR upgraded
 // Any other value represents a pointer to a SignalToken value. The
 // protocol ensures that when the state moves *to* a pointer,
 // ownership of the token is given to the packet, and when the state

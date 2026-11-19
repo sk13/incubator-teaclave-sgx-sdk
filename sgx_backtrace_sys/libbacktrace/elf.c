@@ -2814,6 +2814,10 @@ elf_add (struct backtrace_state *state, const char *filename, int descriptor,
         string table permanently.  */
         backtrace_release_view (state, &symtab_view, error_callback, data);
         symtab_view_valid = 0;
+        /* The symbol names registered by elf_add_syminfo_data below point
+           into the string table, so it must not be released on the fail
+           path, e.g. if the DWARF debug info can't be parsed later.  */
+        strtab_view_valid = 0;
 
         *found_sym = 1;
 

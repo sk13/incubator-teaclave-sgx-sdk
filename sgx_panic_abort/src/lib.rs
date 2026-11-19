@@ -15,7 +15,7 @@
 #![feature(c_unwind)]
 
 use core::any::Any;
-use core::panic::BoxMeUp;
+use core::panic::PanicPayload as BoxMeUp;
 
 /// # Safety
 #[rustc_std_internal_symbol]
@@ -27,7 +27,7 @@ pub unsafe extern "C" fn __rust_panic_cleanup(_: *mut u8) -> *mut (dyn Any + Sen
 /// # Safety
 // "Leak" the payload and shim to the relevant abort on the platform in question.
 #[rustc_std_internal_symbol]
-pub unsafe extern "C-unwind" fn __rust_start_panic(_payload: *mut &mut dyn BoxMeUp) -> u32 {
+pub unsafe fn __rust_start_panic(_payload: &mut dyn BoxMeUp) -> u32 {
     sgx_abort();
 
     #[link(name = "sgx_trts")]

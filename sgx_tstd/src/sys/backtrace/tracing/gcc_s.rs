@@ -107,7 +107,9 @@ pub unsafe fn trace(mut cb: &mut dyn FnMut(&super::Frame) -> bool) {
 
         let sym_addr = cx.symbol_address() as usize;
         let enclave_entry = enclave::rsgx_get_enclave_entry();
-        if enclave_entry == sym_addr || enclave_entry == (sym_addr - 0x04) {
+        // `sym_addr` is 0 if the frame has no unwind info, so don't
+        // subtract from it.
+        if sym_addr == enclave_entry || sym_addr == enclave_entry + 0x04 {
             //0x04 endbr64
             keep_going = false;
         }

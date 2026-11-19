@@ -1624,8 +1624,10 @@ build_address_map(struct backtrace_state* state, uintptr_t base_address,
         version = read_uint16(&unit_buf);
 
         if (version < 2 || version > 4) {
-            dwarf_buf_error(&unit_buf, "unrecognized DWARF version");
-            goto fail;
+            /* Skip units in a DWARF version we can't parse (e.g. DWARF 5
+               emitted by GCC >= 11 for C code) instead of giving up on all
+               the debug info; `info` has already been advanced past it.  */
+            continue;
         }
 
         abbrev_offset = read_offset(&unit_buf, is_dwarf64);

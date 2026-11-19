@@ -34,6 +34,19 @@ pub use crate::panicking::{begin_panic, panic_count};
 pub use crate::sys_common::at_exit;
 pub use core::panicking::{panic_display, panic_fmt};
 
+// This function is needed by the panic runtime.
+//
+// With `-C panic=abort` the sysroot `panic_abort` crate is linked, and its
+// `__rust_start_panic` calls `__rust_abort` instead of aborting by itself.
+// Like upstream std, route it to the platform abort, which for an enclave is
+// `abort()` of the trusted runtime: it marks the enclave as crashed and
+// executes `ud2`, so the host process is terminated by SIGILL.
+#[cfg(not(test))]
+#[rustc_std_internal_symbol]
+fn __rust_abort() {
+    crate::sys::abort_internal();
+}
+
 // Prints to the "panic output", depending on the platform this may be:
 // - the standard error output
 // - some dedicated platform specific output

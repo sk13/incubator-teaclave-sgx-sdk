@@ -471,11 +471,11 @@ where
     fn backtrace(&self) -> Option<&Backtrace> {
         // have to grab the backtrace on the first error directly since that error may not be
         // 'static
-        let backtrace = (&self.error as &dyn Error).request_ref();
+        let backtrace = core::error::request_ref(&self.error);
         backtrace.or_else(|| {
             self.error
                 .source()
-                .map(|source| source.sources().find_map(|source| source.request_ref()))
+                .map(|source| source.sources().find_map(|source| core::error::request_ref(source)))
                 .flatten()
         })
     }

@@ -206,7 +206,9 @@ extern "C" fn syminfo_cb(
                 let sym_address =
                     uw::_Unwind_FindEnclosingFunction((pc + 1) as *mut c_void) as usize;
                 let enclave_entry = enclave::rsgx_get_enclave_entry();
-                if sym_address == enclave_entry || (sym_address - 0x04) == enclave_entry {
+                // `sym_address` is 0 if `pc` has no unwind info, so don't
+                // subtract from it.
+                if sym_address == enclave_entry || sym_address == enclave_entry + 0x04 {
                     //0x04 endbr64
                     symname = ENCLAVE_ENTRY_NAME as *const _ as *const c_char
                 }

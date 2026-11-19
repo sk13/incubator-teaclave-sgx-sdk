@@ -74,11 +74,11 @@ unsafe impl<T: Send, P: Send + Sync, C: Send + Sync> Sync for Queue<T, P, C> {}
 
 impl<T> Node<T> {
     fn new() -> *mut Node<T> {
-        Box::into_raw(box Node {
+        Box::into_raw(Box::new(Node {
             value: None,
             cached: false,
             next: AtomicPtr::new(ptr::null_mut::<Node<T>>()),
-        })
+        }))
     }
 }
 

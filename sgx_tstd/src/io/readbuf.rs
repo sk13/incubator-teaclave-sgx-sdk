@@ -108,7 +108,7 @@ impl<'data> BorrowedBuf<'data> {
     #[inline]
     pub fn filled(&self) -> &[u8] {
         // SAFETY: We only slice the filled part of the buffer, which is always valid
-        unsafe { MaybeUninit::slice_assume_init_ref(&self.buf[0..self.filled]) }
+        unsafe { self.buf[0..self.filled].assume_init_ref() }
     }
 
     /// Returns a cursor over the unfilled part of the buffer.
@@ -212,7 +212,7 @@ impl<'a> BorrowedCursor<'a> {
     #[inline]
     pub fn init_ref(&self) -> &[u8] {
         // SAFETY: We only slice the initialized part of the buffer, which is always valid
-        unsafe { MaybeUninit::slice_assume_init_ref(&self.buf.buf[self.buf.filled..self.buf.init]) }
+        unsafe { self.buf.buf[self.buf.filled..self.buf.init].assume_init_ref() }
     }
 
     /// Returns a mutable reference to the initialized portion of the cursor.
@@ -220,7 +220,7 @@ impl<'a> BorrowedCursor<'a> {
     pub fn init_mut(&mut self) -> &mut [u8] {
         // SAFETY: We only slice the initialized part of the buffer, which is always valid
         unsafe {
-            MaybeUninit::slice_assume_init_mut(&mut self.buf.buf[self.buf.filled..self.buf.init])
+            self.buf.buf[self.buf.filled..self.buf.init].assume_init_mut()
         }
     }
 
@@ -298,7 +298,7 @@ impl<'a> BorrowedCursor<'a> {
 
         // SAFETY: we do not de-initialize any of the elements of the slice
         unsafe {
-            MaybeUninit::write_slice(&mut self.as_mut()[..buf.len()], buf);
+            self.as_mut()[..buf.len()].write_copy_of_slice(buf);
         }
 
         // SAFETY: We just added the entire contents of buf to the filled section.

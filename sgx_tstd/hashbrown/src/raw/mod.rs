@@ -1680,7 +1680,7 @@ impl<T: Clone, A: Allocator + Clone> RawTableClone for RawTable<T, A> {
     }
 }
 #[cfg(feature = "nightly")]
-impl<T: Copy, A: Allocator + Clone> RawTableClone for RawTable<T, A> {
+impl<T: core::clone::TrivialClone, A: Allocator + Clone> RawTableClone for RawTable<T, A> {
     #[cfg_attr(feature = "inline-more", inline)]
     unsafe fn clone_from_spec(&mut self, source: &Self, _on_panic: impl FnMut(&mut Self)) {
         source

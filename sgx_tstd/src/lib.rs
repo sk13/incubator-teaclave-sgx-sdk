@@ -63,9 +63,7 @@
 #![feature(allocator_internals)]
 #![feature(allow_internal_unsafe)]
 #![feature(allow_internal_unstable)]
-#![feature(box_syntax)]
 #![feature(c_unwind)]
-#![feature(concat_idents)]
 #![feature(const_mut_refs)]
 #![feature(const_trait_impl)]
 #![feature(decl_macro)]
@@ -85,8 +83,6 @@
 #![feature(utf8_chunks)]
 //
 // Library features (core):
-#![feature(array_error_internals)]
-#![feature(char_error_internals)]
 #![feature(char_internals)]
 #![feature(core_intrinsics)]
 #![feature(duration_checked_float)]
@@ -99,7 +95,6 @@
 #![feature(float_minimum_maximum)]
 #![feature(hasher_prefixfree_extras)]
 #![feature(hashmap_internals)]
-#![feature(int_error_internals)]
 #![feature(linked_list_remove)]
 #![feature(maybe_uninit_slice)]
 #![feature(maybe_uninit_write_slice)]
@@ -107,15 +102,12 @@
 #![feature(panic_info_message)]
 #![feature(panic_internals)]
 #![feature(prelude_2024)]
-#![feature(provide_any)]
 #![feature(ptr_as_uninit)]
-#![feature(raw_os_nonzero)]
 #![feature(slice_internals)]
 #![feature(std_internals)]
 #![feature(str_internals)]
 #![feature(strict_provenance)]
-#![feature(maybe_uninit_uninit_array)]
-#![feature(const_maybe_uninit_uninit_array)]
+#![feature(temporary_niche_types)]
 //
 // Library features (alloc):
 #![feature(allocator_api)]
@@ -137,7 +129,6 @@
 #![feature(cfg_eval)]
 #![feature(concat_bytes)]
 #![feature(const_format_args)]
-#![feature(core_panic)]
 #![feature(custom_test_frameworks)]
 #![feature(edition_panic)]
 #![feature(format_args_nl)]
@@ -152,11 +143,6 @@
 //
 #![default_lib_allocator]
 
-// Explicitly import the prelude. The compiler uses this same unstable attribute
-// to import the prelude implicitly when building crates that depend on std.
-#[prelude_import]
-#[allow(unused)]
-use prelude::rust_2021::*;
 
 extern crate hashbrown;
 
@@ -199,6 +185,12 @@ pub mod rt;
 
 // The Rust prelude
 pub mod prelude;
+
+// Explicitly import the prelude. The compiler uses this same unstable attribute
+// to import the prelude implicitly when building crates that depend on std.
+#[prelude_import]
+#[allow(unused)]
+use prelude::rust_2021::*;
 
 // Public module declarations and re-exports
 pub use alloc_crate::borrow;
@@ -320,7 +312,7 @@ pub use core::{
 // Re-export built-in macros defined through libcore.
 #[allow(deprecated)]
 pub use core::{
-    assert, assert_matches, cfg, column, compile_error, concat, concat_idents, const_format_args,
+    assert, assert_matches, cfg, column, compile_error, concat, const_format_args,
     env, file, format_args, format_args_nl, include, include_bytes, include_str, line, log_syntax,
     module_path, option_env, stringify, trace_macros,
 };

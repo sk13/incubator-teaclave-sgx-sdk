@@ -125,7 +125,7 @@ struct WaiterQueue<'a> {
 impl Once {
     #[inline]
     pub const fn new() -> Once {
-        Once { state_and_queue: AtomicPtr::new(ptr::invalid_mut(INCOMPLETE)) }
+        Once { state_and_queue: AtomicPtr::new(ptr::without_provenance_mut(INCOMPLETE)) }
     }
 
     #[inline]
@@ -163,7 +163,7 @@ impl Once {
                     // Try to register this thread as the one RUNNING.
                     let exchange_result = self.state_and_queue.compare_exchange(
                         state_and_queue,
-                        ptr::invalid_mut(RUNNING),
+                        ptr::without_provenance_mut(RUNNING),
                         Ordering::Acquire,
                         Ordering::Acquire,
                     );
@@ -175,14 +175,14 @@ impl Once {
                     // wake them up on drop.
                     let mut waiter_queue = WaiterQueue {
                         state_and_queue: &self.state_and_queue,
-                        set_state_on_drop_to: ptr::invalid_mut(POISONED),
+                        set_state_on_drop_to: ptr::without_provenance_mut(POISONED),
                     };
                     // Run the initialization function, letting it know if we're
                     // poisoned or not.
                     let init_state = public::OnceState {
                         inner: OnceState {
                             poisoned: state_and_queue.addr() == POISONED,
-                            set_state_on_drop_to: Cell::new(ptr::invalid_mut(COMPLETE)),
+                            set_state_on_drop_to: Cell::new(ptr::without_provenance_mut(COMPLETE)),
                         },
                     };
                     init(&init_state);
@@ -293,6 +293,6 @@ impl OnceState {
 
     #[inline]
     pub fn poison(&self) {
-        self.set_state_on_drop_to.set(ptr::invalid_mut(POISONED));
+        self.set_state_on_drop_to.set(ptr::without_provenance_mut(POISONED));
     }
 }

@@ -1111,7 +1111,7 @@ pub mod os {
             let ptr = if ptr.is_null() {
                 // If the lookup returned null, we haven't initialized our own
                 // local copy, so do that now.
-                let ptr: Box<Value<T>> = box Value { inner: LazyKeyInner::new(), key: self };
+                let ptr: Box<Value<T>> = Box::new(Value { inner: LazyKeyInner::new(), key: self });
                 let ptr = Box::into_raw(ptr);
                 // SAFETY: At this point we are sure there is no value inside
                 // ptr so setting it will not affect anyone else.
@@ -1140,7 +1140,7 @@ pub mod os {
         // before we return from the destructor ourselves.
         let ptr = Box::from_raw(ptr as *mut Value<T>);
         let key = ptr.key;
-        key.os.set(ptr::invalid_mut(1));
+        key.os.set(ptr::without_provenance_mut(1));
         drop(ptr);
         key.os.set(ptr::null_mut());
     }

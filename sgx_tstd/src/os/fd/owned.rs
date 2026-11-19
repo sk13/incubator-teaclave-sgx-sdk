@@ -27,6 +27,8 @@ use crate::mem::forget;
 use crate::sys::cvt;
 use crate::sys_common::{AsInner, FromInner, IntoInner};
 
+type ValidRawFd = core::num::niche_types::NotAllOnes<RawFd>;
+
 /// A borrowed file descriptor.
 ///
 /// This has a lifetime parameter to tie it to the lifetime of something that
@@ -42,13 +44,9 @@ use crate::sys_common::{AsInner, FromInner, IntoInner};
 /// descriptor, which is then borrowed under the same lifetime.
 #[derive(Copy, Clone)]
 #[repr(transparent)]
-#[rustc_layout_scalar_valid_range_start(0)]
-// libstd/os/raw/mod.rs assures me that every libstd-supported platform has a
-// 32-bit c_int. Below is -2, in two's complement, but that only works out
-// because c_int is 32 bits.
-#[rustc_layout_scalar_valid_range_end(0xFF_FF_FF_FE)]
+#[rustc_nonnull_optimization_guaranteed]
 pub struct BorrowedFd<'fd> {
-    fd: RawFd,
+    fd: ValidRawFd,
     _phantom: PhantomData<&'fd OwnedFd>,
 }
 
@@ -61,13 +59,9 @@ pub struct BorrowedFd<'fd> {
 /// passed as a consumed argument or returned as an owned value, and it never
 /// has the value `-1`.
 #[repr(transparent)]
-#[rustc_layout_scalar_valid_range_start(0)]
-// libstd/os/raw/mod.rs assures me that every libstd-supported platform has a
-// 32-bit c_int. Below is -2, in two's complement, but that only works out
-// because c_int is 32 bits.
-#[rustc_layout_scalar_valid_range_end(0xFF_FF_FF_FE)]
+#[rustc_nonnull_optimization_guaranteed]
 pub struct OwnedFd {
-    fd: RawFd,
+    fd: ValidRawFd,
 }
 
 impl BorrowedFd<'_> {
@@ -81,7 +75,7 @@ impl BorrowedFd<'_> {
     pub const unsafe fn borrow_raw(fd: RawFd) -> Self {
         assert!(fd != u32::MAX as RawFd);
         // SAFETY: we just asserted that the value is in the valid range and isn't `-1` (the only value bigger than `0xFF_FF_FF_FE` unsigned)
-        unsafe { Self { fd, _phantom: PhantomData } }
+        Self { fd: unsafe { ValidRawFd::new_unchecked(fd) }, _phantom: PhantomData }
     }
 }
 
@@ -111,21 +105,21 @@ impl BorrowedFd<'_> {
 impl AsRawFd for BorrowedFd<'_> {
     #[inline]
     fn as_raw_fd(&self) -> RawFd {
-        self.fd
+        self.fd.as_inner()
     }
 }
 
 impl AsRawFd for OwnedFd {
     #[inline]
     fn as_raw_fd(&self) -> RawFd {
-        self.fd
+        self.fd.as_inner()
     }
 }
 
 impl IntoRawFd for OwnedFd {
     #[inline]
     fn into_raw_fd(self) -> RawFd {
-        let fd = self.fd;
+        let fd = self.fd.as_inner();
         forget(self);
         fd
     }
@@ -142,7 +136,7 @@ impl FromRawFd for OwnedFd {
     unsafe fn from_raw_fd(fd: RawFd) -> Self {
         assert_ne!(fd, u32::MAX as RawFd);
         // SAFETY: we just asserted that the value is in the valid range and isn't `-1` (the only value bigger than `0xFF_FF_FF_FE` unsigned)
-        unsafe { Self { fd } }
+        Self { fd: unsafe { ValidRawFd::new_unchecked(fd) } }
     }
 }
 
@@ -155,7 +149,7 @@ impl Drop for OwnedFd {
             // the file descriptor was closed or not, and if we retried (for
             // something like EINTR), we might close another valid file descriptor
             // opened after we closed ours.
-            let _ = libc::close(self.fd);
+            let _ = libc::close(self.fd.as_inner());
         }
     }
 }
