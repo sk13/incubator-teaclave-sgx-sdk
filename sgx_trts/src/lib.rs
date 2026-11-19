@@ -64,7 +64,6 @@
 
 #![no_std]
 #![cfg_attr(target_env = "sgx", feature(rustc_private))]
-#![feature(allocator_api)]
 #![feature(specialization)]
 #![feature(vec_into_raw_parts)]
 #![feature(rustc_attrs)]

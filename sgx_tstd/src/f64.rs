@@ -303,7 +303,7 @@ impl f64 {
     #[must_use = "method returns a new number and does not mutate the original value"]
     #[inline]
     pub fn exp(self) -> f64 {
-        unsafe { intrinsics::expf64(self) }
+        unsafe { intrinsics::exp(self) }
     }
 
     /// Returns `2^(self)`.
@@ -322,7 +322,7 @@ impl f64 {
     #[must_use = "method returns a new number and does not mutate the original value"]
     #[inline]
     pub fn exp2(self) -> f64 {
-        unsafe { intrinsics::exp2f64(self) }
+        unsafe { intrinsics::exp2(self) }
     }
 
     /// Returns the natural logarithm of the number.
@@ -343,7 +343,7 @@ impl f64 {
     #[must_use = "method returns a new number and does not mutate the original value"]
     #[inline]
     pub fn ln(self) -> f64 {
-        self.log_wrapper(|n| unsafe { intrinsics::logf64(n) })
+        self.log_wrapper(|n| unsafe { intrinsics::log(n) })
     }
 
     /// Returns the logarithm of the number with respect to an arbitrary base.
@@ -389,7 +389,7 @@ impl f64 {
             #[cfg(target_os = "android")]
             return crate::sys::android::log2f64(n);
             #[cfg(not(target_os = "android"))]
-            return unsafe { intrinsics::log2f64(n) };
+            return unsafe { intrinsics::log2(n) };
         })
     }
 
@@ -409,7 +409,7 @@ impl f64 {
     #[must_use = "method returns a new number and does not mutate the original value"]
     #[inline]
     pub fn log10(self) -> f64 {
-        self.log_wrapper(|n| unsafe { intrinsics::log10f64(n) })
+        self.log_wrapper(|n| unsafe { intrinsics::log10(n) })
     }
 
     /// The positive difference of two numbers.
@@ -491,7 +491,7 @@ impl f64 {
     #[must_use = "method returns a new number and does not mutate the original value"]
     #[inline]
     pub fn sin(self) -> f64 {
-        unsafe { intrinsics::sinf64(self) }
+        unsafe { intrinsics::sin(self) }
     }
 
     /// Computes the cosine of a number (in radians).
@@ -509,7 +509,7 @@ impl f64 {
     #[must_use = "method returns a new number and does not mutate the original value"]
     #[inline]
     pub fn cos(self) -> f64 {
-        unsafe { intrinsics::cosf64(self) }
+        unsafe { intrinsics::cos(self) }
     }
 
     /// Computes the tangent of a number (in radians).

@@ -19,7 +19,6 @@
         min_specialization,
         trivial_clone,
         extend_one,
-        allocator_api,
         slice_ptr_get,
         nonnull_slice_from_raw_parts,
         maybe_uninit_array_assume_init,

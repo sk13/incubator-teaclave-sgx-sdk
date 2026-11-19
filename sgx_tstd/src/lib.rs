@@ -60,6 +60,7 @@
 //
 // Language features:
 #![feature(alloc_error_handler)]
+#![feature(allocator_ext)]
 #![feature(allocator_internals)]
 #![feature(allow_internal_unsafe)]
 #![feature(allow_internal_unstable)]
@@ -110,7 +111,6 @@
 #![feature(temporary_niche_types)]
 //
 // Library features (alloc):
-#![feature(allocator_api)]
 #![feature(exclusive_wrapper)]
 #![feature(get_mut_unchecked)]
 #![feature(map_try_insert)]

@@ -27,7 +27,8 @@
 #[cfg(feature = "backtrace")]
 use crate::panic::BacktraceStyle;
 use crate::panic::PanicHookInfo;
-use core::panic::{Location, PanicInfo, PanicPayload as BoxMeUp};
+use core::panic::{Location, PanicInfo};
+use alloc_crate::panicking::PanicPayload as BoxMeUp;
 
 use crate::any::Any;
 use crate::fmt;
@@ -582,13 +583,13 @@ pub fn begin_panic_handler(info: &PanicInfo<'_>) -> ! {
         }
     }
 
-    unsafe impl<'a> BoxMeUp for PanicPayload<'a> {
-        fn take_box(&mut self) -> *mut (dyn Any + Send) {
+    impl<'a> BoxMeUp for PanicPayload<'a> {
+        fn take_box(&mut self) -> Box<dyn Any + Send> {
             // We do two allocations here, unfortunately. But (a) they're required with the current
             // scheme, and (b) we don't handle panic + OOM properly anyway (see comment in
             // begin_panic below).
             let contents = mem::take(self.fill());
-            Box::into_raw(Box::new(contents))
+            Box::new(contents)
         }
 
         fn get(&mut self) -> &(dyn Any + Send) {
@@ -598,9 +599,9 @@ pub fn begin_panic_handler(info: &PanicInfo<'_>) -> ! {
 
     struct StrPanicPayload(&'static str);
 
-    unsafe impl BoxMeUp for StrPanicPayload {
-        fn take_box(&mut self) -> *mut (dyn Any + Send) {
-            Box::into_raw(Box::new(self.0))
+    impl BoxMeUp for StrPanicPayload {
+        fn take_box(&mut self) -> Box<dyn Any + Send> {
+            Box::new(self.0)
         }
 
         fn get(&mut self) -> &(dyn Any + Send) {
@@ -682,8 +683,8 @@ pub const fn begin_panic<M: Any + Send>(msg: M) -> ! {
         }
     }
 
-    unsafe impl<A: Send + 'static> BoxMeUp for PanicPayload<A> {
-        fn take_box(&mut self) -> *mut (dyn Any + Send) {
+    impl<A: Send + 'static> BoxMeUp for PanicPayload<A> {
+        fn take_box(&mut self) -> Box<dyn Any + Send> {
             // Note that this should be the only allocation performed in this code path. Currently
             // this means that panic!() on OOM will invoke this code path, but then again we're not
             // really ready for panic on OOM anyway. If we do start doing this, then we should
@@ -693,7 +694,7 @@ pub const fn begin_panic<M: Any + Send>(msg: M) -> ! {
                 Some(a) => Box::new(a) as Box<dyn Any + Send>,
                 None => Box::new(()),
             };
-            Box::into_raw(data)
+            data
         }
 
         fn get(&mut self) -> &(dyn Any + Send) {
@@ -818,9 +819,9 @@ pub fn rust_panic_without_hook(payload: Box<dyn Any + Send>) -> ! {
 
     struct RewrapBox(Box<dyn Any + Send>);
 
-    unsafe impl BoxMeUp for RewrapBox {
-        fn take_box(&mut self) -> *mut (dyn Any + Send) {
-            Box::into_raw(mem::replace(&mut self.0, Box::new(())))
+    impl BoxMeUp for RewrapBox {
+        fn take_box(&mut self) -> Box<dyn Any + Send> {
+            mem::replace(&mut self.0, Box::new(()))
         }
 
         fn get(&mut self) -> &(dyn Any + Send) {

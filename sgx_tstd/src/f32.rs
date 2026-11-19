@@ -302,7 +302,7 @@ impl f32 {
     #[must_use = "method returns a new number and does not mutate the original value"]
     #[inline]
     pub fn exp(self) -> f32 {
-        unsafe { intrinsics::expf32(self) }
+        unsafe { intrinsics::exp(self) }
     }
 
     /// Returns `2^(self)`.
@@ -321,7 +321,7 @@ impl f32 {
     #[must_use = "method returns a new number and does not mutate the original value"]
     #[inline]
     pub fn exp2(self) -> f32 {
-        unsafe { intrinsics::exp2f32(self) }
+        unsafe { intrinsics::exp2(self) }
     }
 
     /// Returns the natural logarithm of the number.
@@ -342,7 +342,7 @@ impl f32 {
     #[must_use = "method returns a new number and does not mutate the original value"]
     #[inline]
     pub fn ln(self) -> f32 {
-        unsafe { intrinsics::logf32(self) }
+        unsafe { intrinsics::log(self) }
     }
 
     /// Returns the logarithm of the number with respect to an arbitrary base.
@@ -387,7 +387,7 @@ impl f32 {
         #[cfg(target_os = "android")]
         return crate::sys::android::log2f32(self);
         #[cfg(not(target_os = "android"))]
-        return unsafe { intrinsics::log2f32(self) };
+        return unsafe { intrinsics::log2(self) };
     }
 
     /// Returns the base 10 logarithm of the number.
@@ -406,7 +406,7 @@ impl f32 {
     #[must_use = "method returns a new number and does not mutate the original value"]
     #[inline]
     pub fn log10(self) -> f32 {
-        unsafe { intrinsics::log10f32(self) }
+        unsafe { intrinsics::log10(self) }
     }
 
     /// The positive difference of two numbers.
@@ -488,7 +488,7 @@ impl f32 {
     #[must_use = "method returns a new number and does not mutate the original value"]
     #[inline]
     pub fn sin(self) -> f32 {
-        unsafe { intrinsics::sinf32(self) }
+        unsafe { intrinsics::sin(self) }
     }
 
     /// Computes the cosine of a number (in radians).
@@ -506,7 +506,7 @@ impl f32 {
     #[must_use = "method returns a new number and does not mutate the original value"]
     #[inline]
     pub fn cos(self) -> f32 {
-        unsafe { intrinsics::cosf32(self) }
+        unsafe { intrinsics::cos(self) }
     }
 
     /// Computes the tangent of a number (in radians).
